@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { PostContent } from '@/components/blog'
 import { createAdminClient } from '@/lib/supabase/server-client'
+import type { Post, Category, Tag } from '@/types/database'
 
 interface PostPageProps {
   params: Promise<{ slug: string }>
@@ -39,11 +40,9 @@ export async function generateMetadata({ params }: PostPageProps) {
 
   if (!post) return { title: 'Post not found' }
 
-  const postData = post as { title: string; meta_title: string | null; meta_description: string | null; excerpt: string | null }
-
   return {
-    title: postData.meta_title || postData.title,
-    description: postData.meta_description || postData.excerpt,
+    title: post.meta_title || post.title,
+    description: post.meta_description || post.excerpt,
   }
 }
 
@@ -66,10 +65,11 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound()
   }
 
-  const postData = post as any
+  type PostWithJoins = Post & { category: Category | null; tags: Array<{ tag: Tag }> }
+  const postData = post as unknown as PostWithJoins
   const formattedPost = {
     ...postData,
-    tags: postData.tags?.map((t: { tag: { id: string; name: string; slug: string; created_at: string } }) => t.tag) || []
+    tags: postData.tags?.map((t) => t.tag) ?? []
   }
 
   const { data: relatedPosts } = await supabase
@@ -79,15 +79,15 @@ export default async function PostPage({ params }: PostPageProps) {
       category:categories(*),
       tags:post_tags(tag:tags(*))
     `)
-    .eq('category_id', postData.category_id)
+    .eq('category_id', postData.category_id ?? '')
     .neq('id', postData.id)
     .not('published_at', 'is', null)
     .limit(2)
 
-  const formattedRelatedPosts = (relatedPosts as any[])?.map(p => ({
+  const formattedRelatedPosts = (relatedPosts as unknown as PostWithJoins[])?.map(p => ({
     ...p,
-    tags: p.tags?.map((t: { tag: { id: string; name: string; slug: string; created_at: string } }) => t.tag) || []
-  })) || []
+    tags: p.tags?.map((t) => t.tag) ?? []
+  })) ?? []
 
   return <PostContent post={formattedPost} relatedPosts={formattedRelatedPosts} />
 }

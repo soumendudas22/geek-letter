@@ -1,5 +1,6 @@
 import { PostList, SearchBar, FilterBar, NewsletterForm } from '@/components/blog'
 import { createAdminClient } from '@/lib/supabase/server-client'
+import type { Post, Category, Tag } from '@/types/database'
 
 interface BlogPageProps {
   searchParams: Promise<{
@@ -45,14 +46,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
   const { data: posts } = await query
 
-  let filteredPosts = (posts as any[])?.map(post => ({
+  type PostWithJoins = Post & { category: Category | null; tags: Array<{ tag: Tag }> }
+  let filteredPosts = (posts as unknown as PostWithJoins[])?.map(post => ({
     ...post,
-    tags: post.tags?.map((t: { tag: { id: string; name: string; slug: string; created_at: string } }) => t.tag) || []
-  })) || []
+    tags: post.tags?.map((t) => t.tag) ?? []
+  })) ?? []
 
   if (params.tag) {
     filteredPosts = filteredPosts.filter(post =>
-      post.tags.some((tag: { slug: string }) => tag.slug === params.tag)
+      post.tags.some((tag) => tag.slug === params.tag)
     )
   }
 
