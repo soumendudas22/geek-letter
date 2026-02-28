@@ -15,6 +15,7 @@ import { createAdminClient } from '@/lib/supabase/server-client'
 import { formatDate } from '@/lib/utils'
 import type { Post } from '@/types/database'
 
+
 type RecentPost = Pick<Post, 'id' | 'title' | 'slug' | 'published_at' | 'created_at'>
 
 /**
