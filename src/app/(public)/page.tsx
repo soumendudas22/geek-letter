@@ -1,10 +1,55 @@
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { ArrowRight, Sparkles, Zap, Mail as MailIcon, BookOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { NewsletterForm, PostCard } from '@/components/blog'
-import { GradientOrbs, SubscriberCount } from '@/components/blog/animated-hero'
+import { Skeleton } from '@/components/ui/skeleton'
+import { SkeletonCard } from '@/components/ui/skeleton-card'
 import { createAdminClient } from '@/lib/supabase/server-client'
 import type { PostWithJoins } from '@/types/database'
+
+/**
+ * Dynamically import client components for code splitting.
+ * PostCard, NewsletterForm, and animated hero elements are client components
+ * loaded asynchronously with inline skeleton fallbacks.
+ */
+const PostCard = dynamic(
+  () => import('@/components/blog/post-card').then((mod) => mod.PostCard),
+  { loading: () => <SkeletonCard /> }
+)
+
+const NewsletterForm = dynamic(
+  () =>
+    import('@/components/blog/newsletter-form').then(
+      (mod) => mod.NewsletterForm
+    ),
+  {
+    loading: () => (
+      <div className="max-w-xl mx-auto text-center space-y-4">
+        <Skeleton className="h-8 w-64 mx-auto" />
+        <Skeleton className="h-5 w-96 max-w-full mx-auto" />
+        <div className="flex gap-3 max-w-md mx-auto pt-4">
+          <Skeleton className="h-12 flex-1 rounded-full" />
+          <Skeleton className="h-12 w-32 rounded-full" />
+        </div>
+      </div>
+    ),
+  }
+)
+
+const GradientOrbs = dynamic(
+  () =>
+    import('@/components/blog/animated-hero').then((mod) => mod.GradientOrbs)
+)
+
+const SubscriberCount = dynamic(
+  () =>
+    import('@/components/blog/animated-hero').then(
+      (mod) => mod.SubscriberCount
+    ),
+  {
+    loading: () => <Skeleton className="h-4 w-36 rounded" />,
+  }
+)
 
 export default async function HomePage() {
   const supabase = await createAdminClient()

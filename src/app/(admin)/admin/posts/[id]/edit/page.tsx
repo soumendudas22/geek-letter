@@ -1,10 +1,50 @@
+import dynamic from 'next/dynamic'
 import { notFound, redirect } from 'next/navigation'
-import { PostForm } from '@/components/admin'
 import { createAdminClient } from '@/lib/supabase/server-client'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface EditPostPageProps {
   params: Promise<{ id: string }>
 }
+
+/**
+ * Dynamically import PostForm to code-split the heavy editor bundle.
+ * Shows an inline skeleton fallback while the JS chunk loads.
+ */
+const PostForm = dynamic(
+  () => import('@/components/admin/post-form').then((mod) => mod.PostForm),
+  {
+    loading: () => (
+      <div className="space-y-6 max-w-4xl animate-page-enter">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-12" />
+          <Skeleton className="h-10 w-full rounded-md" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-10" />
+          <Skeleton className="h-10 w-full rounded-md" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2"><Skeleton className="h-4 w-16" /><Skeleton className="h-10 w-full rounded-md" /></div>
+          <div className="space-y-2"><Skeleton className="h-4 w-10" /><Skeleton className="h-10 w-full rounded-md" /></div>
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-64 w-full rounded-md" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-14" />
+          <Skeleton className="h-24 w-full rounded-md" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-10 w-full rounded-md" />
+        </div>
+        <Skeleton className="h-11 w-32 rounded-md" />
+      </div>
+    ),
+  }
+)
 
 export default async function EditPostPage({ params }: EditPostPageProps) {
   const { id } = await params

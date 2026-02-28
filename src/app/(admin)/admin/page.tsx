@@ -74,7 +74,7 @@ export default async function AdminDashboard() {
   ]
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
+    <div className="w-full mx-auto">
       {/* Welcome banner */}
       <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/10 via-accent/5 to-primary/5 border p-4 sm:p-5 mb-4 sm:mb-6">
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />

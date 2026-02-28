@@ -1,4 +1,6 @@
-import { PostList, SearchBar, FilterBar, NewsletterForm } from '@/components/blog'
+import dynamic from 'next/dynamic'
+import { PostList, FilterBar } from '@/components/blog'
+import { Skeleton } from '@/components/ui/skeleton'
 import { createAdminClient } from '@/lib/supabase/server-client'
 import type { PostWithJoins } from '@/types/database'
 
@@ -9,6 +11,33 @@ interface BlogPageProps {
     search?: string
   }>
 }
+
+/**
+ * Dynamically import client components for code splitting.
+ * SearchBar and NewsletterForm are client components loaded asynchronously.
+ * PostList and FilterBar are server components — imported statically.
+ */
+const SearchBar = dynamic(
+  () => import('@/components/blog/search-bar').then((mod) => mod.SearchBar),
+  {
+    loading: () => <Skeleton className="h-10 w-full rounded-md" />,
+  }
+)
+
+const NewsletterForm = dynamic(
+  () =>
+    import('@/components/blog/newsletter-form').then(
+      (mod) => mod.NewsletterForm
+    ),
+  {
+    loading: () => (
+      <div className="space-y-3">
+        <Skeleton className="h-10 w-full rounded-md" />
+        <Skeleton className="h-10 w-full rounded-md" />
+      </div>
+    ),
+  }
+)
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const params = await searchParams
