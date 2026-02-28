@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -9,16 +9,26 @@ import { Button } from '@/components/ui/button'
 interface SearchBarProps {
   onSearch: (query: string) => Promise<string | void> | string | void
   placeholder?: string
+  initialQuery?: string
 }
 
-export function SearchBar({ onSearch, placeholder = 'Search posts...' }: SearchBarProps) {
-  const [query, setQuery] = useState('')
+export function SearchBar({ onSearch, placeholder = 'Search posts...', initialQuery = '' }: SearchBarProps) {
+  const [query, setQuery] = useState(initialQuery)
   const router = useRouter()
+  const isNavigating = useRef(false)
 
   const navigate = async (q: string) => {
-    const result = await onSearch(q)
-    if (typeof result === 'string') {
-      router.push(result)
+    if (isNavigating.current) return
+    isNavigating.current = true
+    try {
+      const result = await onSearch(q)
+      if (typeof result === 'string') {
+        router.push(result)
+      }
+    } catch (err) {
+      console.error('[SearchBar] navigation failed:', err)
+    } finally {
+      isNavigating.current = false
     }
   }
 
