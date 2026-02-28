@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { verifyAdmin } from '@/lib/supabase/server-client'
+import { createAdminClient, verifyAdmin } from '@/lib/supabase/server-client'
 
 export async function POST(request: NextRequest) {
   const authError = await verifyAdmin()
   if (authError) return authError
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!
-  )
+  const supabase = await createAdminClient()
 
   try {
     const formData = await request.formData()

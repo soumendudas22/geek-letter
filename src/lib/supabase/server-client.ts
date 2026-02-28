@@ -60,7 +60,9 @@ export async function createServiceClient() {
 export const createAdminClient = createServiceClient
 
 /**
- * Verifies the request is from an authenticated admin user.
+ * Verifies the request is from an authenticated user.
+ * This project uses a single-admin model — only one Supabase auth account
+ * is created (the newsletter owner), so any authenticated user is the admin.
  * Returns a 401 NextResponse if unauthenticated, otherwise returns null.
  *
  * Usage in route handlers:
