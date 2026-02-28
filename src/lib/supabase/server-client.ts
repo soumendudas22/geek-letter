@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import type { Database } from '@/types/database'
@@ -28,28 +29,15 @@ export async function createClient() {
   )
 }
 
-/** Service client — uses secret key, bypasses RLS, for admin/server operations. */
-export async function createServiceClient() {
-  const cookieStore = await cookies()
-  return createServerClient<Database>(
+/**
+ * Service client — uses secret key, bypasses RLS, for admin/server operations.
+ * Uses @supabase/supabase-js directly because the service key does not rely on
+ * cookie-based sessions, so the SSR cookie adapter is unnecessary.
+ */
+export function createServiceClient() {
+  return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SECRET_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll()
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            )
-          } catch {
-            // Route Handlers cannot set cookies on read-only request objects; error is expected in that context.
-          }
-        },
-      },
-    }
+    process.env.SUPABASE_SECRET_KEY!
   )
 }
 

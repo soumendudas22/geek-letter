@@ -1,6 +1,6 @@
 import { PostList, SearchBar, FilterBar, NewsletterForm } from '@/components/blog'
 import { createAdminClient } from '@/lib/supabase/server-client'
-import type { Post, Category, Tag } from '@/types/database'
+import type { PostWithJoins } from '@/types/database'
 
 interface BlogPageProps {
   searchParams: Promise<{
@@ -41,12 +41,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   }
 
   if (params.search) {
-    query = query.or(`title.ilike.%${params.search}%,excerpt.ilike.%${params.search}%`)
+    // Strip characters that could inject additional PostgREST filter conditions.
+    const safeSearch = params.search.replace(/[%,]/g, '')
+    query = query.or(`title.ilike.%${safeSearch}%,excerpt.ilike.%${safeSearch}%`)
   }
 
   const { data: posts } = await query
 
-  type PostWithJoins = Post & { category: Category | null; tags: Array<{ tag: Tag }> }
   let filteredPosts = (posts as unknown as PostWithJoins[])?.map(post => ({
     ...post,
     tags: post.tags?.map((t) => t.tag) ?? []
