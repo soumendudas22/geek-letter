@@ -15,6 +15,8 @@ import { createAdminClient } from '@/lib/supabase/server-client'
 import { formatDate } from '@/lib/utils'
 import type { Post } from '@/types/database'
 
+type RecentPost = Pick<Post, 'id' | 'title' | 'slug' | 'published_at' | 'created_at'>
+
 /**
  * AdminDashboard — polished dashboard with gradient welcome banner,
  * colored stat cards, quick actions, and recent activity.
@@ -159,7 +161,7 @@ export default async function AdminDashboard() {
           <CardContent className="p-3 sm:p-4 pt-0">
             {recentPosts && recentPosts.length > 0 ? (
               <ul className="space-y-2 sm:space-y-3">
-                {(recentPosts as Post[]).map((post) => (
+                {(recentPosts as unknown as RecentPost[]).map((post) => (
                   <li key={post.id} className="flex items-center gap-2 sm:gap-3 min-w-0 p-1.5 sm:p-2 -mx-1.5 sm:-mx-2 rounded-lg hover:bg-muted/50 transition-colors">
                     <div className={`w-2 h-2 rounded-full flex-shrink-0 ${post.published_at ? 'bg-green-500' : 'bg-yellow-500'}`} />
                     <div className="flex-1 min-w-0">

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { PostContent } from '@/components/blog'
 import { createAdminClient } from '@/lib/supabase/server-client'
-import type { Post, Category, Tag } from '@/types/database'
+import type { PostWithJoins } from '@/types/database'
 
 interface PostPageProps {
   params: Promise<{ slug: string }>
@@ -65,7 +65,6 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound()
   }
 
-  type PostWithJoins = Post & { category: Category | null; tags: Array<{ tag: Tag }> }
   const postData = post as unknown as PostWithJoins
   const formattedPost = {
     ...postData,

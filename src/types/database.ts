@@ -212,3 +212,9 @@ export type PostWithAll = Post & {
   tags: Tag[]
   likes_count?: number
 }
+
+/** Matches the Supabase join shape: `select('*, category:categories(*), tags:post_tags(tag:tags(*))')` */
+export type PostWithJoins = Post & {
+  category: Category | null
+  tags: Array<{ tag: Tag }>
+}

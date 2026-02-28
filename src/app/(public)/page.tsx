@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { NewsletterForm, PostCard } from '@/components/blog'
 import { GradientOrbs, SubscriberCount } from '@/components/blog/animated-hero'
 import { createAdminClient } from '@/lib/supabase/server-client'
-import type { Post, Category, Tag } from '@/types/database'
+import type { PostWithJoins } from '@/types/database'
 
 export default async function HomePage() {
   const supabase = await createAdminClient()
@@ -20,7 +20,6 @@ export default async function HomePage() {
     .order('published_at', { ascending: false })
     .limit(3)
 
-  type PostWithJoins = Post & { category: Category | null; tags: Array<{ tag: Tag }> }
   const formattedPosts = (posts as unknown as PostWithJoins[])?.map(post => ({
     ...post,
     tags: post.tags?.map((t) => t.tag) ?? []
