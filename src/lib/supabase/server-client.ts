@@ -19,7 +19,9 @@ export async function createClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
-          } catch {}
+          } catch {
+            // Route Handlers cannot set cookies on read-only request objects; error is expected in that context.
+          }
         },
       },
     }
@@ -42,7 +44,9 @@ export async function createServiceClient() {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
-          } catch {}
+          } catch {
+            // Route Handlers cannot set cookies on read-only request objects; error is expected in that context.
+          }
         },
       },
     }
@@ -50,8 +54,8 @@ export async function createServiceClient() {
 }
 
 /**
- * Alias kept for backward compatibility — all callers already use this name.
- * Identical to createServiceClient.
+ * Named alias for createServiceClient so existing route handlers don't require renaming.
+ * Prefer createServiceClient in new code.
  */
 export const createAdminClient = createServiceClient
 
